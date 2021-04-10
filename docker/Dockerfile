@@ -6,11 +6,13 @@ ADD entrypoint.sh /root/entrypoint.sh
 
 RUN apk update && \
     apk upgrade && \
-    apk add --no-cache git bash vim curl ncurses easy-rsa && \
+    apk add --no-cache git bash vim curl ncurses easy-rsa expect && \
     mkdir /etc/vim/backup && \
     mkdir /etc/vim/undo && \
     rm /etc/vim/vimrc && \
     curl -L https://raw.githubusercontent.com/tuimac/tools/master/vim/vimrc -o /etc/vim/vimrc && \
-    curl -L https://raw.githubusercontent.com/tuimac/tools/master/linux/bashrc/.bashrc_node_docker -o /root/.bashrc
+    curl -L https://raw.githubusercontent.com/tuimac/tools/master/linux/bashrc/.bashrc_node_docker -o /root/.bashrc && \
+    git config --global user.email 'tuimac.devadm@gmail.com' && \
+    git config --global user.name 'tuimac'
 
 #ENTRYPOINT ["/root/entrypoint.sh"]
