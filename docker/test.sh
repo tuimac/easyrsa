@@ -22,7 +22,7 @@ expect eof
 '
 
 expect -c '
-spawn ./easyrsa build-server-full server
+spawn ./easyrsa build-client-full client
 expect \"Enter\"
 send {$env(PW)}
 send \r

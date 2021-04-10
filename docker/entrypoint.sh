@@ -2,13 +2,11 @@
 
 CERTDIR='/root/certs'
 EASYRSA='/usr/share/easy-rsa'
-SERVERCERTNAME='server'
-CLIENTCERTNAME='client'
 
-function generateCaCert(){
+function generateCerts(){
     cd $EASYRSA
     ./easyrsa init-pki
-    if [ $1 -eq 0 ]; then
+    if [ -z $CAPASSWORD ]; then
         ./easyrsa --batch build-ca nopass
     else
 		expect -c '
@@ -25,20 +23,16 @@ function generateCaCert(){
 		expect eof
 		'
     fi
-}
-
-function generateServerCert(){
-    cd $EASYRSA
     if [ -z $SERVERPASSWORD ]; then
-        ./easyrsa build-server-full ${SERVERCERTNAME} nopass
+        ./easyrsa build-server-full server nopass
     else
         expect -c '
+        set timeout 30
         spawn ./easyrsa build-server-full server
-        expect \"Enter\"
+        expect \"Enter PEM pass phrase\"
         send {$env(PW)}
         send \r
-        set timeout 30
-        expect \"Verifying\"
+        expect \"Verifying - Enter PEM pass phrase\"
         send {$env(PW)}
         send \r
         expect \"Enter pass phrase\"
@@ -47,28 +41,81 @@ function generateServerCert(){
         expect eof
         '
     fi
-}
-
-function generateCerts(){
-    if [ -z $CAPASSWORD ]; then
-        generateCaCert 0
+    if [ -z $CLIENTPASSWORD ]; then
+        ./easyrsa build-client-full client nopass
     else
-        generateCaCert 1
+        expect -c '
+        set timeout 30
+        spawn ./easyrsa build-client-full client
+        expect \"Enter PEM pass phrase\"
+        send {$env(CLIENTPASSWORD)}
+        send \r
+        expect \"Verifying - Enter PEM pass phrase\"
+        send {$env(CLIENTPASSWORD)}
+        send \r
+        expect \"Enter pass phrase\"
+        send {$env(PW)}
+        send \r
+        expect eof
+        '
     fi
-    generateServerCert
     ./easyrsa gen-dh
     openvpn --genkey --secret ${CERTDIR}/ta.key
-    ./easyrsa build-client-full ${CLIENTCERTNAME} nopass
-    mv ${EASYRSA}/pki/ca.crt ${SERVERDIR}
-    mv ${EASYRSA}/pki/issued/${SERVERCERTNAME}.crt ${CERTDIR}
-    mv ${EASYRSA}/pki/private/${SERVERCERTNAME}.key ${CERTDIR}
+    mv ${EASYRSA}/pki/ca.crt ${CERTDIR}
+    mv ${EASYRSA}/pki/issued/server.crt ${CERTDIR}
+    mv ${EASYRSA}/pki/private/server.key ${CERTDIR}
     mv ${EASYRSA}/pki/dh.pem ${CERTDIR}
-    mv ${EASYRSA}/pki/issued/${CLIENTCERTNAME}.crt ${CERTDIR}
-    mv ${EASYRSA}/pki/private/${CLIENTCERTNAME}.key ${CERTDIR}
+    mv ${EASYRSA}/pki/issued/client.crt ${CERTDIR}
+    mv ${EASYRSA}/pki/private/client.key ${CERTDIR}
 }
 
-function main{
+function createOvpn(){
+    cat <<EOF > ${CERTDIR}/client.ovpn
+client
+dev tun
+proto udp
+remote $PUBLICIP 443
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+user nobody
+group nobody
+remote-cert-tls server
+tls-client
+comp-lzo
+cipher AES-256-CBC
+verb 4
+tun-mtu 1500
+key-direction 1
+EOF
+    echo '<ca>' >> ${CERTDIR}/client.ovpn
+    cat ${CERTDIR}/ca.crt >> ${CERTDIR}/client.ovpn
+    echo '</ca>' >> ${CERTDIR}/client.ovpn
+
+    echo '<key>' >> ${CERTDIR}/client.ovpn
+    cat ${CERTDIR}/client.key >> ${CERTDIR}/client.ovpn
+    echo '</key>' >> ${CERTDIR}/client.ovpn
+
+    echo '<cert>' >> ${CERTDIR}/client.ovpn
+    cat ${CERTDIR}/client.crt >> ${CERTDIR}/client.ovpn
+    echo '</cert>' >> ${CERTDIR}/client.ovpn
+
+    echo '<tls-auth>' >> ${CERTDIR}/client.ovpn
+    cat ${CERTDIR}/ta.key >> ${CERTDIR}/client.ovpn
+    echo '</tls-auth>' >> ${CERTDIR}/client.ovpn
+}
+
+function packCerts(){
+    cd ${CERTDIR}
+    cd ..
+    zip -r certification.zip ${CERTDIR}
+}
+
+function main(){
     generateCerts
+    createOvpn
+    packCerts
 }
 
 main

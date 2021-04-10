@@ -6,7 +6,7 @@ ADD entrypoint.sh /root/entrypoint.sh
 
 RUN apk update && \
     apk upgrade && \
-    apk add --no-cache git bash vim curl ncurses easy-rsa expect && \
+    apk add --no-cache git bash vim curl ncurses easy-rsa expect zip openvpn && \
     mkdir /etc/vim/backup && \
     mkdir /etc/vim/undo && \
     rm /etc/vim/vimrc && \
@@ -15,4 +15,4 @@ RUN apk update && \
     git config --global user.email 'tuimac.devadm@gmail.com' && \
     git config --global user.name 'tuimac'
 
-#ENTRYPOINT ["/root/entrypoint.sh"]
+ENTRYPOINT ["/root/entrypoint.sh"]
