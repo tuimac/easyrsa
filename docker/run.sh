@@ -11,7 +11,10 @@ IMAGE=${DOCKERHUBUSER}/${NAME}
 function runContainer(){
     docker run -itd --name ${NAME} \
                 -p 8000:8000 \
-                -v ${VOLUME}:/root/certs \
+                -v ${VOLUME}:/root/packed \
+                -e CAPASSWORD='P@ssw0rd' \
+                -e SERVERPASSWORD='P@ssword' \
+                -e CLIENTPASSWORD='fdasfa3wer' \
                 -h ${NAME} \
                 ${NAME}
 }
@@ -45,7 +48,7 @@ function deleteAll(){
     docker rm ${NAME}
     docker rmi ${NAME}
     cleanup
-    rm -rf ${VOLUME}
+    sudo rm -rf ${VOLUME}
 }
 
 function commitImage(){

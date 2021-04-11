@@ -11,8 +11,6 @@ RUN apk update && \
     mkdir /etc/vim/undo && \
     rm /etc/vim/vimrc && \
     curl -L https://raw.githubusercontent.com/tuimac/tools/master/vim/vimrc -o /etc/vim/vimrc && \
-    curl -L https://raw.githubusercontent.com/tuimac/tools/master/linux/bashrc/.bashrc_node_docker -o /root/.bashrc && \
-    git config --global user.email 'tuimac.devadm@gmail.com' && \
-    git config --global user.name 'tuimac'
+    curl -L https://raw.githubusercontent.com/tuimac/tools/master/linux/bashrc/.bashrc_node_docker -o /root/.bashrc
 
 ENTRYPOINT ["/root/entrypoint.sh"]

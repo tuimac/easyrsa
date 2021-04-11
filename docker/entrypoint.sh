@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CERTDIR='/root/certs'
+PACKEDDIR='/root/packed'
 EASYRSA='/usr/share/easy-rsa'
 
 function generateCerts(){
@@ -29,14 +30,14 @@ function generateCerts(){
         expect -c '
         set timeout 30
         spawn ./easyrsa build-server-full server
-        expect \"Enter PEM pass phrase\"
-        send {$env(PW)}
+        expect \"Enter\"
+        send {$env(SERVERPASSWORD)}
         send \r
-        expect \"Verifying - Enter PEM pass phrase\"
-        send {$env(PW)}
+        expect \"Verifying\"
+        send {$env(SERVERPASSWORD)}
         send \r
         expect \"Enter pass phrase\"
-        send {$env(PW)}
+        send {$env(CAPASSWORD)}
         send \r
         expect eof
         '
@@ -47,14 +48,14 @@ function generateCerts(){
         expect -c '
         set timeout 30
         spawn ./easyrsa build-client-full client
-        expect \"Enter PEM pass phrase\"
+        expect \"Enter\"
         send {$env(CLIENTPASSWORD)}
         send \r
-        expect \"Verifying - Enter PEM pass phrase\"
+        expect \"Verifying\"
         send {$env(CLIENTPASSWORD)}
         send \r
         expect \"Enter pass phrase\"
-        send {$env(PW)}
+        send {$env(CAPASSWORD)}
         send \r
         expect eof
         '
@@ -109,10 +110,12 @@ EOF
 function packCerts(){
     cd ${CERTDIR}
     cd ..
-    zip -r certification.zip ${CERTDIR}
+    zip -r ${PACKEDDIR}/certification.zip $(basename $CERTDIR)
 }
 
 function main(){
+    [[ ! -e $CERTDIR ]] && { mkdir $CERTDIR; }
+    [[ ! -e $PACKEDDIR ]] && { mkdir $PACKEDDIR; }
     generateCerts
     createOvpn
     packCerts
