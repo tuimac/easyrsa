@@ -3,6 +3,7 @@ FROM alpine:latest
 WORKDIR /root
 
 ADD entrypoint.sh /root/entrypoint.sh
+ADD gen-certs.sh /root/gen-certs.sh
 
 RUN apk update && \
     apk upgrade && \

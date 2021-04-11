@@ -16,7 +16,8 @@ function runContainer(){
                 -e SERVERPASSWORD='P@ssword' \
                 -e CLIENTPASSWORD='fdasfa3wer' \
                 -h ${NAME} \
-                ${NAME}
+                ${NAME} \
+                --mode=web
 }
 
 function cleanup(){
