@@ -1,13 +1,13 @@
 package com.example.restservice.model;
 
-public class Book {
+public class Certification {
 
-    private final int bookId;
+    private final String serverCertName;
     private final String title;
     private final String content;
 
-    public Book(int bookId, String title, String content) {
-        this.bookId = bookId;
+    public Book(int serverCertName, String title, String content) {
+        this. = bookId;
         this.title = title;
         this.content = content;
     }

@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class BookController {
+public class EasyRsaContoller {
 
-    @GetMapping("/book")
-    public Book list(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return new Book(String.format(template, name));
+    @GetMapping("/getCert")
+    public void getCert() {
+        
+        return ;
     }
 
     @PostMapping

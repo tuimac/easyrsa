@@ -9,9 +9,9 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.example</groupId>
-  <artifactId>postgresql-test</artifactId>
+  <artifactId>easyrsa</artifactId>
   <version>1</version>
-  <name>postgres-test</name>
+  <name>easyrsa</name>
   <description>Demo project for Postgresql redundancy</description>
   <properties>
     <java.version>11</java.version>
